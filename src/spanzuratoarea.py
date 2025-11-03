@@ -27,7 +27,6 @@ litere_ghicite = []     #Ține o listă cu toate literele deja ghicite, pentru a
 litere_ghicite_n = 0    #Contorizează câte litere au fost deja ghicite corect.
 incercari = 0           #Numărul de încercări pentru cuvântul curent.
 total_incercari = 0     #Numărul total de încercări pentru toate cuvintele din fișier
-gresit_consecutiv = 0   #Ține minte câte încercări greșite au fost la rând; dacă sunt mai multe, botul își schimbă strategia (de exemplu, trece de la consoane la vocale).
 
 litere = {chr(ch): 0 for ch in range(97, 123)}
 for ch in 'ăâîșț':
@@ -103,8 +102,8 @@ def joc():
     global ghicit, litere_ghicite, raspuns_len, raspuns, ascuns, estimat_silabe, gresit_consecutiv
     global tura, incercari, total_incercari, litere, vocale, fortat, litere_ghicite_n
 
-    while not ghicit:      #Ea rulează până când variabila ghicit devine True (bucla principala)
-        if litere_ghicite_n == raspuns_len:       #Dacă numărul de litere ghicite e egal cu lungimea cuvântului afișează cuvântul complet mesajul de câștig și iese din buclă
+    while not ghicit:     
+        if litere_ghicite_n == raspuns_len:       
             print(f"The raspuns is: {raspuns}")
             print('You won!\n')
             ghicit = True
@@ -114,21 +113,21 @@ def joc():
         print(' '.join(ascuns))   
 
         # Determină litera ghicită
-        if fortat and litere[fortat] == 0:  #Dacă există o literă „forțată” și nu a fost deja folosită o alege automat
+        if fortat and litere[fortat] == 0:  
             att = fortat
             fortat = ''
         else:
             att = bot()
 
-        print(f"\nAttempt #{incercari + 1}\nGuess a letter: {att}")   #Arată ce literă se încearcă și la ce încercare se află
+        print(f"\nAttempt #{incercari + 1}\nGuess a letter: {att}")   
 
-        if att is None:      #Dacă botul a returnat None (nu mai sunt litere disponibile) scrie cuvântul în fișierul results/erori.txt pentru analiză și oprește jocul.
+        if att is None:     
             print('Error! All letters tried or something went wrong...\n')
             with open('results//erori.txt', 'a', encoding='utf-8-sig') as fisier:
                 fisier.write(raspuns + '\n')
             break
 
-        matches = False     #Dacă litera ghicită (att) se potrivește o scrie în poziția corectă din ascuns crește numărul de litere ghicite dacă e vocală, scade numărul de silabe estimate
+        matches = False    
         dcrt_a = False
         for i, ch in enumerate(raspuns):
             if att == ch:
@@ -138,20 +137,20 @@ def joc():
                 matches = True
             if 0 < i < raspuns_len - 1 and ascuns[i] == '_': dcrt_a = True
 
-        if matches:     #Afișează mesaj de succes Adaugă litera în lista ghicitelor Resetează numărul de greșeli consecutive
+        if matches:    
             print(f"\n{att.upper()} fits!\n")
             litere_ghicite.append(att)
-            litere[att] = 2  #Marchează-o ca folosită corect
+            litere[att] = 2  
             gresit_consecutiv = 0
-            if att == 'â': litere['î'] = 1  #Dacă s-a ghicit â, marchează î ca deja folosită
+            if att == 'â': litere['î'] = 1 
             elif att == 'î': litere['â'] = 1
-        else:   #Marchează litera ca folosită greșit Crește numărul de greșeli consecutive
+        else:   
             print("\nWrong!\n")
             litere[att] = 1
             gresit_consecutiv += 1
 
-        if not dcrt_a and litere['â'] == 0: litere['â'] = 1  #Dacă nu mai există litere necunoscute între pozițiile din mijloc marchează â ca folosită
-        if litere['î'] == 0 and (ascuns[0] != '_' or ascuns[1] in vocale or cns_i >= lungime_c // 2): fortat = 'î' #Dacă î nu a fost încă folosită, dar se îndeplinesc anumite condiții de poziție în cuvânt → forțează alegerea lui î la următoarea tură
+        if not dcrt_a and litere['â'] == 0: litere['â'] = 1  
+        if litere['î'] == 0 and (ascuns[0] != '_' or ascuns[1] in vocale or cns_i >= lungime_c // 2): fortat = 'î' 
 
         incercari += 1  
         total_incercari += 1
@@ -163,25 +162,25 @@ def resetare(n):
     global ghicit, ascuns, incercari, total_incercari, litere_ghicite, litere_ghicite_n
     global estimat_silabe, litere, vocale, raspuns, raspuns_len
 
-    raspuns = lista_cuvinte[n]               #selectează cuvântul de ghicit
-    ascuns = list(cuvinte[raspuns])          #copiază o versiune ascunsă a cuvântului sub forma unei liste de caractere
-    raspuns_len = len(raspuns)               #salvează lungimea cuvântului
-    estimat_silabe = raspuns_len // 3 + 1    #estimează câte silabe are (aprox 1 la 3 litere)
+    raspuns = lista_cuvinte[n]          
+    ascuns = list(cuvinte[raspuns])          
+    raspuns_len = len(raspuns)             
+    estimat_silabe = raspuns_len // 3 + 1   
 
-    litere = {chr(ch): 0 for ch in range(97, 123)} #Creează un dicționar litere cu toate literele mici ale alfabetului englez și adaugă și caracterele românești
+    litere = {chr(ch): 0 for ch in range(97, 123)} 
     for ch in 'ăâîșț': litere[ch] = 0
 
     dift_gasite = set()
-    litere_ghicite = []   #lista de litere deja descoperite
-    litere_ghicite_n = 0  #numărul de litere ghicite
-    incercari = 0         #numărul curent de încercări
+    litere_ghicite = []   
+    litere_ghicite_n = 0  
+    incercari = 0        
     ghicit = False
-    vcl_i = 0             #indicii de pornire pentru vocale și consoane
+    vcl_i = 0           
     cns_i = 0
-    gresit_consecutiv = 0 #0 la inceput
-    tura = 'V'            #jocul începe cu o vocală
+    gresit_consecutiv = 0 
+    tura = 'V'            
 
-    for ch in ascuns:   #Dacă în ascuns există deja litere dezvăluite de la început , ele sunt marcate ca ghicite.
+    for ch in ascuns:   
         if ch.isalpha() and litere[ch] != 2:  
             litere[ch] = 2  
             litere_ghicite_n += raspuns.count(ch)
@@ -190,24 +189,24 @@ def resetare(n):
 
 # --- Cod principal ---
 def main():
-    lim = len(lista_cuvinte)   #numărul total de cuvinte care trebuie jucate
+    lim = len(lista_cuvinte)   
     game_id = 1                
-    with open('results//results.txt', 'w', encoding='utf-8-sig') as fisier:         #Se deschide fișierul results/results.txt în modul scriere ('w'), care șterge tot conținutul vechi Se adaugă un antet (header) pentru rezultate
+    with open('results//results.txt', 'w', encoding='utf-8-sig') as fisier:      
         fisier.write('game_id, incercari, solution, status, guess_sequence\n\n')
     with open('results//erori.txt', 'w', encoding='utf-8-sig') as fisier: 
         fisier.write('')
     
     for n in range(lim): 
-        resetare(n)   #pregătește jocul cu cuvântul
-        joc()         #rulează runda
-        with open('results//results.txt', 'a', encoding='utf-8-sig') as fisier:    #Se redeschide fișierul results.txt în modul adăugare ('a'), ca să nu șteargă ce era înainte si Scrie o linie cu rezultatele jocului curent
+        resetare(n)  
+        joc()        
+        with open('results//results.txt', 'a', encoding='utf-8-sig') as fisier:     
             fisier.write(f"{game_id}, {incercari}, {''.join(ascuns)}, {'OK' if ghicit else 'FAIL'}, {''.join(litere_ghicite)}\n")
         game_id += 1
     
-    with open('results//results.txt', 'a', encoding='utf-8-sig') as fisier: #După ce toate jocurile s-au terminat, se adaugă la finalul fișierului numărul total de încercări făcute în toate rundele
+    with open('results//results.txt', 'a', encoding='utf-8-sig') as fisier: 
         fisier.write(f"\nTotal incercari: {total_incercari}")
     
-    print(f"\nTotal attempts: {total_incercari}\nAverage attempts: {total_incercari // lim}\n")  #Afișează în terminal totalul încercărilor media încercărilor per joc
+    print(f"\nTotal attempts: {total_incercari}\nAverage attempts: {total_incercari // lim}\n")  
 
 if __name__ == '__main__':
     main()
